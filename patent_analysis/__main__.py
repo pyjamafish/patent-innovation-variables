@@ -14,4 +14,16 @@ def get_patent_df():
     )
 
 
-print(get_patent_df())
+def get_citation_df():
+    return pl.read_csv(
+        file="patent_analysis/resources/uspatentcitation.tsv",
+        sep="\t",
+        columns=["patent_id", "citation_id"],
+        dtypes={
+            "patent_id": pl.Utf8,
+            "citation_id": pl.Utf8,
+        }
+    )
+
+
+print(get_citation_df())
