@@ -1,29 +1,36 @@
 import polars as pl
+from importlib import resources
+from datetime import datetime
+
+RESOURCE_PATH = resources.files("patent_analysis.resources")
 
 
-def get_patent_df():
-    return pl.read_csv(
-        file="patent_analysis/resources/patent.tsv",
-        sep="\t",
-        columns=["id", "number", "date"],
-        dtypes={
-            "id": pl.Utf8,
-            "number": pl.Utf8,
-            "date": pl.Date
-        }
+def get_patent_lf() -> pl.LazyFrame:
+    return (
+        pl.scan_csv(
+            file=str(RESOURCE_PATH.joinpath("patent_mini.tsv")),
+            sep="\t",
+            dtypes={"date": pl.Date}
+        )
+        .select(["id", "date"])
+        .filter(
+            pl.col("date") >= pl.lit(datetime(1999, 1, 1))
+        )
+        .filter(
+            pl.col("date") <= pl.lit(datetime(2019, 12, 31))
+        )
     )
 
 
-def get_citation_df():
-    return pl.read_csv(
-        file="patent_analysis/resources/uspatentcitation.tsv",
+def get_citation_lf() -> pl.LazyFrame:
+    return pl.scan_csv(
+        file=str(RESOURCE_PATH.joinpath("uspatentcitation_mini.tsv")),
         sep="\t",
-        columns=["patent_id", "citation_id"],
-        dtypes={
-            "patent_id": pl.Utf8,
-            "citation_id": pl.Utf8,
-        }
     )
 
 
-print(get_citation_df())
+print(
+    get_patent_lf()
+    .join(get_citation_lf(), left_on="id", right_on="patent_id")
+    .fetch()
+)

@@ -1,4 +1,12 @@
 [[package]]
+name = "connectorx"
+version = "0.3.0"
+description = ""
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "numpy"
 version = "1.23.0"
 description = "NumPy is the fundamental package for array computing with Python."
@@ -8,23 +16,23 @@ python-versions = ">=3.8"
 
 [[package]]
 name = "polars"
-version = "0.13.51"
+version = "0.13.52"
 description = "Blazingly fast DataFrame library"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
-numpy = ">=1.16.0"
 pyarrow = {version = ">=4.0", optional = true, markers = "extra == \"pyarrow\""}
 typing_extensions = {version = ">=4.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
-pyarrow = ["pyarrow (>=4.0)"]
-fsspec = ["fsspec"]
+xlsx2csv = ["xlsx2csv"]
 connectorx = ["connectorx"]
 pandas = ["pyarrow (>=4.0)", "pandas"]
-xlsx2csv = ["xlsx2csv"]
+pyarrow = ["pyarrow (>=4.0)"]
+fsspec = ["fsspec"]
+numpy = ["numpy (>=1.16.0)"]
 
 [[package]]
 name = "pyarrow"
@@ -48,9 +56,10 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "fcf8cc53933738c9a75c7a6fce66f08e6f72dc8be94cf0faf4d720d390026ab2"
+content-hash = "70f6493f3fabb72ddc889f79e8810891b0e9fc56aa073956cf8e57e914741228"
 
 [metadata.files]
+connectorx = []
 numpy = [
     {file = "numpy-1.23.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:58bfd40eb478f54ff7a5710dd61c8097e169bc36cc68333d00a9bcd8def53b38"},
     {file = "numpy-1.23.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:196cd074c3f97c4121601790955f915187736f9cf458d3ee1f1b46aff2b1ade0"},
@@ -75,14 +84,7 @@ numpy = [
     {file = "numpy-1.23.0-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:94b170b4fa0168cd6be4becf37cb5b127bd12a795123984385b8cd4aca9857e5"},
     {file = "numpy-1.23.0.tar.gz", hash = "sha256:bd3fa4fe2e38533d5336e1272fc4e765cabbbde144309ccee8675509d5cd7b05"},
 ]
-polars = [
-    {file = "polars-0.13.51-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:bbb9055c086eddcb8efb9d09b49cfbbe06b0de940d3145ac47fc1cdf0f6e1a1a"},
-    {file = "polars-0.13.51-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:e01fa8c9f82ca58c3dfbad394cd05870cfbad187395267a8eb32015f9b280115"},
-    {file = "polars-0.13.51-cp37-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:fc15ab90905f643e9e7c53ba37952fea71a5c34ff5e1bb1fbc149622a05c4bae"},
-    {file = "polars-0.13.51-cp37-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:9d3443cc7d184ceabac1522c70b04b9a2f9a585d4b24d46f0de1db9808c89fdc"},
-    {file = "polars-0.13.51-cp37-abi3-win_amd64.whl", hash = "sha256:947f5193c5156b9186a81e3f2330c5dc6e1558a59ddff5792383aa00463e46a8"},
-    {file = "polars-0.13.51.tar.gz", hash = "sha256:234f018c0476b19a2ffedd6cc04c8765a4aafa374d4d9a7ce920aadfb29df695"},
-]
+polars = []
 pyarrow = [
     {file = "pyarrow-8.0.0-cp310-cp310-macosx_10_13_universal2.whl", hash = "sha256:d5ef4372559b191cafe7db8932801eee252bfc35e983304e7d60b6954576a071"},
     {file = "pyarrow-8.0.0-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:863be6bad6c53797129610930794a3e797cb7d41c0a30e6794a2ac0e42ce41b8"},
