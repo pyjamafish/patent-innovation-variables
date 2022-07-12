@@ -31,14 +31,14 @@ def get_citation_lf() -> pl.LazyFrame:
 
 print(
     get_citation_lf()
-    .join(get_patent_lf(), left_on="citation_id", right_on="id")
     .rename(
         {
             "patent_id": "citing_patent",
             "citation_id": "cited_patent",
-            "date": "cited_patent_issue_date"
         }
     )
+    .join(get_patent_lf(), left_on="cited_patent", right_on="id")
+    .rename({"date": "cited_patent_issue_date"})
     .filter(
         pl.col("cited_patent_issue_date") <= pl.lit(datetime(2019, 12, 31))
     )
