@@ -20,9 +20,12 @@ def get_patent_lf() -> pl.LazyFrame:
 
 
 def get_citation_lf() -> pl.LazyFrame:
-    return pl.scan_csv(
-        file=str(RESOURCE_PATH.joinpath("uspatentcitation.tsv")),
-        sep="\t",
+    return (
+        pl.scan_csv(
+            file=str(RESOURCE_PATH.joinpath("uspatentcitation.tsv")),
+            sep="\t",
+        )
+        .select(["patent_id", "citation_id"])
     )
 
 
