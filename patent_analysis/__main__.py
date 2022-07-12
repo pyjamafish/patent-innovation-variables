@@ -42,5 +42,14 @@ print(
     .filter(
         pl.col("cited_patent_issue_date") <= pl.lit(datetime(2019, 12, 31))
     )
+    .join(get_patent_lf(), left_on="citing_patent", right_on="id")
+    .rename({"date": "citing_patent_issue_date"})
+    .groupby("cited_patent")
+    .agg(
+        [
+            pl.col("cited_patent_issue_date").first(),
+            pl.col("citing_patent_issue_date")
+        ]
+    )
     .collect()
 )
