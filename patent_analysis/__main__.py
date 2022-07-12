@@ -2,6 +2,7 @@ import polars as pl
 from importlib import resources
 from datetime import datetime
 
+
 RESOURCE_PATH = resources.files("patent_analysis.resources.mini")
 
 
@@ -48,7 +49,9 @@ print(
     .agg(
         [
             pl.col("cited_patent_issue_date").first(),
-            pl.col("citing_patent_issue_date")
+            (
+                pl.col("citing_patent_issue_date") <= pl.col("cited_patent_issue_date").first().dt.offset_by("3y")
+            ).sum().alias("citations_3_years")
         ]
     )
     .collect()
