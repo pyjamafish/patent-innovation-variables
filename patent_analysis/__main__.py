@@ -27,14 +27,7 @@ def get_citation_lf() -> pl.LazyFrame:
 
 
 print(
-    get_patent_lf()
-    .join(get_citation_lf(), left_on="id", right_on="patent_id")
-    .groupby("citation_id")
-    .agg(
-        [
-            pl.col("id").list(),
-            pl.col("date").list()
-        ]
-    )
+    get_citation_lf()
+    .join(get_patent_lf(), left_on="citation_id", right_on="id")
     .collect()
 )
