@@ -2,13 +2,13 @@ import polars as pl
 from importlib import resources
 from datetime import datetime
 
-RESOURCE_PATH = resources.files("patent_analysis.resources")
+RESOURCE_PATH = resources.files("patent_analysis.resources.mini")
 
 
 def get_patent_lf() -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=str(RESOURCE_PATH.joinpath("patent_mini.tsv")),
+            file=str(RESOURCE_PATH.joinpath("patent.tsv")),
             sep="\t",
             dtypes={"date": pl.Date}
         )
@@ -24,7 +24,7 @@ def get_patent_lf() -> pl.LazyFrame:
 
 def get_citation_lf() -> pl.LazyFrame:
     return pl.scan_csv(
-        file=str(RESOURCE_PATH.joinpath("uspatentcitation_mini.tsv")),
+        file=str(RESOURCE_PATH.joinpath("uspatentcitation.tsv")),
         sep="\t",
     )
 
