@@ -16,9 +16,6 @@ def get_patent_lf() -> pl.LazyFrame:
         .filter(
             pl.col("date") >= pl.lit(datetime(1999, 1, 1))
         )
-        .filter(
-            pl.col("date") <= pl.lit(datetime(2019, 12, 31))
-        )
     )
 
 
