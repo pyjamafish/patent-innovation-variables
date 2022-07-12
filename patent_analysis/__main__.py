@@ -39,5 +39,8 @@ print(
             "date": "cited_patent_issue_date"
         }
     )
+    .filter(
+        pl.col("cited_patent_issue_date") <= pl.lit(datetime(2019, 12, 31))
+    )
     .collect()
 )
