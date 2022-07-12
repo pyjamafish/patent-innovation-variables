@@ -32,5 +32,12 @@ def get_citation_lf() -> pl.LazyFrame:
 print(
     get_citation_lf()
     .join(get_patent_lf(), left_on="citation_id", right_on="id")
+    .rename(
+        {
+            "patent_id": "citing_patent",
+            "citation_id": "cited_patent",
+            "date": "cited_patent_issue_date"
+        }
+    )
     .collect()
 )
