@@ -55,16 +55,23 @@ def get_output_lf() -> pl.LazyFrame:
         .groupby("cited_patent")
         .agg(
             [
+                pl.col("cited_patent_issue_date").first(),
                 get_citation_count(3),
                 get_citation_count(5)
             ]
+        )
+        .with_column(
+            pl.when(pl.col("cited_patent_issue_date").dt.offset_by("5y") > datetime(2021, 12, 31))
+            .then(pl.lit(None))
+            .otherwise(pl.col("citations_5_years"))
+            .alias("citations_5_years")
         )
     )
 
 
 def main():
     lf = get_output_lf()
-    lf.collect().write_parquet(file=str(RESOURCE_PATH.joinpath("output.parquet")))
+    print(lf.collect())
 
 
 if __name__ == '__main__':
