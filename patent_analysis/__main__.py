@@ -11,7 +11,7 @@ def get_patent_lf() -> pl.LazyFrame:
         pl.scan_csv(
             file=str(RESOURCE_PATH.joinpath("patent.tsv")),
             sep="\t",
-            dtypes={"date": pl.Date}
+            dtypes={"id": pl.Utf8, "date": pl.Date}
         )
         .select(["id", "date"])
         .filter(
@@ -25,6 +25,7 @@ def get_citation_lf() -> pl.LazyFrame:
         pl.scan_csv(
             file=str(RESOURCE_PATH.joinpath("uspatentcitation.tsv")),
             sep="\t",
+            dtypes={"patent_id": pl.Utf8, "citation_id": pl.Utf8}
         )
         .select(["patent_id", "citation_id"])
     )
