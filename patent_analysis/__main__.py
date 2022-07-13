@@ -36,27 +36,36 @@ def get_citation_count(years: int) -> pl.Expr:
     ).sum().alias(f"citations_{years}_years")
 
 
-print(
-    get_citation_lf()
-    .rename(
-        {
-            "patent_id": "citing_patent",
-            "citation_id": "cited_patent",
-        }
+def get_output_lf() -> pl.LazyFrame:
+    return (
+        get_citation_lf()
+        .rename(
+            {
+                "patent_id": "citing_patent",
+                "citation_id": "cited_patent",
+            }
+        )
+        .join(get_patent_lf(), left_on="cited_patent", right_on="id")
+        .rename({"date": "cited_patent_issue_date"})
+        .filter(
+            pl.col("cited_patent_issue_date") <= pl.lit(datetime(2019, 12, 31))
+        )
+        .join(get_patent_lf(), left_on="citing_patent", right_on="id")
+        .rename({"date": "citing_patent_issue_date"})
+        .groupby("cited_patent")
+        .agg(
+            [
+                get_citation_count(3),
+                get_citation_count(5)
+            ]
+        )
     )
-    .join(get_patent_lf(), left_on="cited_patent", right_on="id")
-    .rename({"date": "cited_patent_issue_date"})
-    .filter(
-        pl.col("cited_patent_issue_date") <= pl.lit(datetime(2019, 12, 31))
-    )
-    .join(get_patent_lf(), left_on="citing_patent", right_on="id")
-    .rename({"date": "citing_patent_issue_date"})
-    .groupby("cited_patent")
-    .agg(
-        [
-            get_citation_count(3),
-            get_citation_count(5)
-        ]
-    )
-    .collect()
-)
+
+
+def main():
+    lf = get_output_lf()
+    lf.collect().write_parquet(file=str(RESOURCE_PATH.joinpath("output.parquet")))
+
+
+if __name__ == '__main__':
+    main()
