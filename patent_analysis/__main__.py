@@ -3,7 +3,7 @@ from importlib import resources
 from datetime import datetime
 
 
-RESOURCE_PATH = resources.files("patent_analysis.resources.mini")
+RESOURCE_PATH = resources.files("patent_analysis.resources.stripped")
 
 
 def get_patent_lf() -> pl.LazyFrame:
@@ -72,7 +72,7 @@ def get_output_lf() -> pl.LazyFrame:
 
 def main():
     lf = get_output_lf()
-    print(lf.collect())
+    lf.collect().write_parquet(file=str(RESOURCE_PATH.joinpath("output.parquet")))
 
 
 if __name__ == '__main__':
