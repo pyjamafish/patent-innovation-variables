@@ -30,6 +30,12 @@ def get_citation_lf() -> pl.LazyFrame:
     )
 
 
+def get_citation_count(years: int) -> pl.Expr:
+    return (
+        pl.col("citing_patent_issue_date") <= pl.col("cited_patent_issue_date").first().dt.offset_by(f"{years}y")
+    ).sum().alias(f"citations_{years}_years")
+
+
 print(
     get_citation_lf()
     .rename(
@@ -48,10 +54,8 @@ print(
     .groupby("cited_patent")
     .agg(
         [
-            pl.col("cited_patent_issue_date").first(),
-            (
-                pl.col("citing_patent_issue_date") <= pl.col("cited_patent_issue_date").first().dt.offset_by("3y")
-            ).sum().alias("citations_3_years")
+            get_citation_count(3),
+            get_citation_count(5)
         ]
     )
     .collect()
