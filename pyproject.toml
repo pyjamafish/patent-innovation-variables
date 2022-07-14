@@ -8,7 +8,6 @@ authors = ["Fisher Sun <fisher521.fs@gmail.com>"]
 python = "^3.8"
 polars = {extras = ["pyarrow"], version = "^0.13.51"}
 connectorx = "^0.3.0"
-python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
 
