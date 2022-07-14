@@ -3,7 +3,7 @@ from importlib import resources
 from datetime import datetime
 
 
-RESOURCE_PATH = resources.files("patent_analysis.resources.stripped")
+RESOURCE_PATH = resources.files("patent_analysis.resources.mini")
 
 
 def get_patent_lf() -> pl.LazyFrame:
