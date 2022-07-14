@@ -72,7 +72,7 @@ def get_output_lf() -> pl.LazyFrame:
 
 def main():
     lf = get_output_lf()
-    lf.collect().write_parquet(file=str(RESOURCE_PATH.joinpath("output.parquet")))
+    lf.collect().write_csv(file=str(RESOURCE_PATH.joinpath("output.tsv")), sep="\t")
 
 
 if __name__ == '__main__':
