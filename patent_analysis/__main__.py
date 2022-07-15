@@ -3,7 +3,7 @@ from importlib import resources
 from datetime import datetime
 
 
-RESOURCE_PATH = resources.files("patent_analysis.resources.mini")
+RESOURCE_PATH = resources.files("patent_analysis.resources.stripped")
 
 
 def get_patent_lf() -> pl.LazyFrame:
@@ -17,6 +17,18 @@ def get_patent_lf() -> pl.LazyFrame:
         .filter(
             pl.col("date") >= pl.lit(datetime(1999, 1, 1))
         )
+    )
+
+
+def get_sample_lf() -> pl.LazyFrame:
+    return (
+        pl.scan_csv(
+            file=str(RESOURCE_PATH.joinpath("sample.csv")),
+            dtypes={"patent_num": pl.Utf8}
+        )
+        .with_column(pl.col('issue_date').str.strptime(pl.Date, fmt='%m/%d/%Y').alias("date"))
+        .select(["patent_num", "date"])
+        .rename({"patent_num": "id"})
     )
 
 
@@ -46,7 +58,7 @@ def get_output_lf() -> pl.LazyFrame:
                 "citation_id": "cited_patent",
             }
         )
-        .join(get_patent_lf(), left_on="cited_patent", right_on="id")
+        .join(get_sample_lf(), left_on="cited_patent", right_on="id")
         .rename({"date": "cited_patent_issue_date"})
         .filter(
             pl.col("cited_patent_issue_date") <= pl.lit(datetime(2018, 12, 31))
