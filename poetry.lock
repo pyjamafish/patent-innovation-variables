@@ -16,7 +16,7 @@ python-versions = ">=3.8"
 
 [[package]]
 name = "polars"
-version = "0.13.53"
+version = "0.13.52"
 description = "Blazingly fast DataFrame library"
 category = "main"
 optional = false
@@ -27,12 +27,12 @@ pyarrow = {version = ">=4.0", optional = true, markers = "extra == \"pyarrow\""}
 typing_extensions = {version = ">=4.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
-connectorx = ["connectorx"]
-numpy = ["numpy (>=1.16.0)"]
-pandas = ["pyarrow (>=4.0)", "pandas"]
-fsspec = ["fsspec"]
 xlsx2csv = ["xlsx2csv"]
+connectorx = ["connectorx"]
+pandas = ["pyarrow (>=4.0)", "pandas"]
 pyarrow = ["pyarrow (>=4.0)"]
+fsspec = ["fsspec"]
+numpy = ["numpy (>=1.16.0)"]
 
 [[package]]
 name = "pyarrow"
@@ -56,7 +56,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "70f6493f3fabb72ddc889f79e8810891b0e9fc56aa073956cf8e57e914741228"
+content-hash = "4906937bfd0fac9101487dd11e3742574dd80a48d034d6b5feb676800d6c96c2"
 
 [metadata.files]
 connectorx = []
