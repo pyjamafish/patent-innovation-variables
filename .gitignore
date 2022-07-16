@@ -216,3 +216,4 @@ cython_debug/
 output.parquet
 patent_analysis/data/citations/*.csv
 patent_analysis/data/citations/*.tsv
+patent_analysis/data/citations_dummy/*.tsv
