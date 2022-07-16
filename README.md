@@ -9,7 +9,7 @@ The sample used by this repository is taken from KPSS.
 
 ## `data` package layout
 * `citation` subpackage: contains files for counting citations.
-Its contents are mirrored by `tests/fixtures/citation`.
+These files are too big to commit, so the expected files are listed below:
   * `output.tsv`: the output data.
   * `patent.tsv`: the patent table from PatentsView,
   used to match patent ID with issue date.
