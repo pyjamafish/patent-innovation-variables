@@ -1,7 +1,7 @@
 import polars as pl
 from importlib import resources
-from datetime import datetime
 
+from patent_analysis import SAMPLE_EARLIEST_DATE, SAMPLE_LATEST_DATE, SAMPLE_5_YEAR_CUTOFF
 
 RESOURCE_PATH = resources.files("patent_analysis.data.citations")
 
@@ -15,7 +15,7 @@ def get_patent_lf(path) -> pl.LazyFrame:
         )
         .select(["id", "date"])
         .filter(
-            pl.col("date") >= pl.lit(datetime(1999, 1, 1))
+            pl.col("date") >= SAMPLE_EARLIEST_DATE
         )
     )
 
@@ -61,7 +61,7 @@ def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
         .join(get_sample_lf(sample_path), left_on="cited_patent", right_on="id")
         .rename({"date": "cited_patent_issue_date"})
         .filter(
-            pl.col("cited_patent_issue_date") <= pl.lit(datetime(2018, 12, 31))
+            pl.col("cited_patent_issue_date") <= SAMPLE_LATEST_DATE
         )
         .join(get_patent_lf(patent_path), left_on="citing_patent", right_on="id")
         .rename({"date": "citing_patent_issue_date"})
@@ -74,7 +74,7 @@ def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
             ]
         )
         .with_column(
-            pl.when(pl.col("cited_patent_issue_date") > datetime(2016, 12, 31))
+            pl.when(pl.col("cited_patent_issue_date") > SAMPLE_5_YEAR_CUTOFF)
             .then(pl.lit(None))
             .otherwise(pl.col("citations_5_years"))
             .alias("citations_5_years")
