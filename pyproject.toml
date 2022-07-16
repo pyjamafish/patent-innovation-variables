@@ -6,7 +6,7 @@ authors = ["Fisher Sun <fisher521.fs@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-polars = {extras = ["pyarrow"], version = "<0.13.53"} # 0.13.53 is broken
+polars = {extras = ["pyarrow"], version = "^0.13.54"}
 connectorx = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
