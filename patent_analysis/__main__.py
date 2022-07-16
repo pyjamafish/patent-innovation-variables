@@ -9,7 +9,7 @@ RESOURCE_PATH = resources.files("patent_analysis.resources.patentsview")
 def get_patent_lf() -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=str(RESOURCE_PATH.joinpath("patent.tsv")),
+            file=f"{RESOURCE_PATH}/patent.tsv",
             sep="\t",
             dtypes={"id": pl.Utf8, "date": pl.Date}
         )
@@ -23,7 +23,7 @@ def get_patent_lf() -> pl.LazyFrame:
 def get_sample_lf() -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=str(RESOURCE_PATH.joinpath("sample.csv")),
+            file=f"{RESOURCE_PATH}/sample.csv",
             dtypes={"patent_num": pl.Utf8}
         )
         .with_column(pl.col('issue_date').str.strptime(pl.Date, fmt='%m/%d/%Y').alias("date"))
@@ -35,7 +35,7 @@ def get_sample_lf() -> pl.LazyFrame:
 def get_citation_lf() -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=str(RESOURCE_PATH.joinpath("uspatentcitation.tsv")),
+            file=f"{RESOURCE_PATH}/uspatentcitation.tsv",
             sep="\t",
             dtypes={"patent_id": pl.Utf8, "citation_id": pl.Utf8}
         )
@@ -84,7 +84,7 @@ def get_output_lf() -> pl.LazyFrame:
 
 def main():
     lf = get_output_lf()
-    lf.collect().write_csv(file=str(RESOURCE_PATH.joinpath("output.tsv")), sep="\t")
+    lf.collect().write_csv(file=f"{RESOURCE_PATH}/output.tsv", sep="\t")
 
 
 if __name__ == '__main__':
