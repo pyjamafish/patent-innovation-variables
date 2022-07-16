@@ -6,10 +6,10 @@ from datetime import datetime
 RESOURCE_PATH = resources.files("patent_analysis.resources.patentsview")
 
 
-def get_patent_lf() -> pl.LazyFrame:
+def get_patent_lf(path) -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=f"{RESOURCE_PATH}/patent.tsv",
+            file=path,
             sep="\t",
             dtypes={"id": pl.Utf8, "date": pl.Date}
         )
@@ -20,10 +20,10 @@ def get_patent_lf() -> pl.LazyFrame:
     )
 
 
-def get_sample_lf() -> pl.LazyFrame:
+def get_sample_lf(path) -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=f"{RESOURCE_PATH}/sample.csv",
+            file=path,
             dtypes={"patent_num": pl.Utf8}
         )
         .with_column(pl.col('issue_date').str.strptime(pl.Date, fmt='%m/%d/%Y').alias("date"))
@@ -32,10 +32,10 @@ def get_sample_lf() -> pl.LazyFrame:
     )
 
 
-def get_citation_lf() -> pl.LazyFrame:
+def get_citation_lf(path) -> pl.LazyFrame:
     return (
         pl.scan_csv(
-            file=f"{RESOURCE_PATH}/uspatentcitation.tsv",
+            file=path,
             sep="\t",
             dtypes={"patent_id": pl.Utf8, "citation_id": pl.Utf8}
         )
@@ -49,21 +49,21 @@ def get_citation_count(years: int) -> pl.Expr:
     ).sum().alias(f"citations_{years}_years")
 
 
-def get_output_lf() -> pl.LazyFrame:
+def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
     return (
-        get_citation_lf()
+        get_citation_lf(citation_path)
         .rename(
             {
                 "patent_id": "citing_patent",
                 "citation_id": "cited_patent",
             }
         )
-        .join(get_sample_lf(), left_on="cited_patent", right_on="id")
+        .join(get_sample_lf(sample_path), left_on="cited_patent", right_on="id")
         .rename({"date": "cited_patent_issue_date"})
         .filter(
             pl.col("cited_patent_issue_date") <= pl.lit(datetime(2018, 12, 31))
         )
-        .join(get_patent_lf(), left_on="citing_patent", right_on="id")
+        .join(get_patent_lf(patent_path), left_on="citing_patent", right_on="id")
         .rename({"date": "citing_patent_issue_date"})
         .groupby("cited_patent")
         .agg(
@@ -83,7 +83,11 @@ def get_output_lf() -> pl.LazyFrame:
 
 
 def main():
-    lf = get_output_lf()
+    lf = get_output_lf(
+        patent_path=f"{RESOURCE_PATH}/patent.tsv",
+        sample_path=f"{RESOURCE_PATH}/sample.csv",
+        citation_path=f"{RESOURCE_PATH}/uspatentcitation.tsv"
+    )
     lf.collect().write_csv(file=f"{RESOURCE_PATH}/output.tsv", sep="\t")
 
 
