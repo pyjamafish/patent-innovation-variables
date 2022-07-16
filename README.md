@@ -10,5 +10,3 @@ The sample used by this repository is taken from KPSS.
 ## `resources` packages layout
 * `patentsview` is for the original files from [patentsview.org](https://patentsview.org/download/data-download-tables).
     These files are too large, so they are not committed.
-* `mini` contains hand-made data, used to test data operations.
-
