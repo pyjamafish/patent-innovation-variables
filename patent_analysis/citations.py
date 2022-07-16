@@ -3,7 +3,7 @@ from importlib import resources
 from datetime import datetime
 
 
-RESOURCE_PATH = resources.files("patent_analysis.data.citation")
+RESOURCE_PATH = resources.files("patent_analysis.data.citations")
 
 
 def get_patent_lf(path) -> pl.LazyFrame:
@@ -43,7 +43,7 @@ def get_citation_lf(path) -> pl.LazyFrame:
     )
 
 
-def get_citation_count(years: int) -> pl.Expr:
+def get_citations_count(years: int) -> pl.Expr:
     return (
         pl.col("citing_patent_issue_date") <= pl.col("cited_patent_issue_date").first().dt.offset_by(f"{years}y")
     ).sum().alias(f"citations_{years}_years")
@@ -69,8 +69,8 @@ def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
         .agg(
             [
                 pl.col("cited_patent_issue_date").first(),
-                get_citation_count(3),
-                get_citation_count(5)
+                get_citations_count(3),
+                get_citations_count(5)
             ]
         )
         .with_column(

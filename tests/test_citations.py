@@ -1,24 +1,24 @@
 import polars as pl
-from patent_analysis import citation
+from patent_analysis import citations
 
 
 def test_citation(
-    citation_patent_path,
-    citation_sample_path,
-    citation_uspatentcitation_path,
-    citation_expected_output_path,
+    citations_patent_path,
+    citations_sample_path,
+    citations_uspatentcitation_path,
+    citations_expected_output_path,
     tmp_path
 ) -> None:
-    lf = citation.get_output_lf(
-        patent_path=citation_patent_path,
-        sample_path=citation_sample_path,
-        citation_path=citation_uspatentcitation_path
+    lf = citations.get_output_lf(
+        patent_path=citations_patent_path,
+        sample_path=citations_sample_path,
+        citation_path=citations_uspatentcitation_path
     )
     df_actual = lf.collect().sort(by="cited_patent")
 
     df_expected = (
         pl.read_csv(
-            citation_expected_output_path,
+            citations_expected_output_path,
             sep="\t",
             dtypes={
                 "cited_patent_issue_date": pl.Date,
