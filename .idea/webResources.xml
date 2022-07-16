@@ -6,6 +6,7 @@
         <entryData>
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/patent_analysis/resources" />
+            <path value="file://$PROJECT_DIR$/tests/fixtures" />
           </resourceRoots>
         </entryData>
       </entry>
