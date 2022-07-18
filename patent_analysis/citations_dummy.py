@@ -21,6 +21,7 @@ def get_subclass_lf(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pl.LazyFrame:
         .select(
             ["patent_id", "section", "ipc_class", "subclass"]
         )
+        .unique()
     )
 
 
