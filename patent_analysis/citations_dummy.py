@@ -46,16 +46,18 @@ def get_output_lf(
     return (
         get_citations_count_lf(path=citations_count_path)
         .join(get_subclass_lf(path=subclass_path), left_on="cited_patent", right_on="patent_id")
-        .groupby(
-            [
-                "cited_patent_issue_date",
-                "section",
-                "ipc_class",
-                "subclass"
-            ]
-        )
-        .agg(
-            pl.col("cited_patent")
+        .with_column(
+            pl.col("citations_3_years")
+            .rank()
+            .over(
+                [
+                    "cited_patent_issue_date",
+                    "section",
+                    "ipc_class",
+                    "subclass"
+                ]
+            )
+            .alias("rank")
         )
     )
 
