@@ -1,51 +1,52 @@
-import polars as pl
+import pandas as pd
+import numpy as np
 
 from importlib import resources
+from datetime import datetime
 
 CITATIONS_COUNT_PATH = resources.files("patent_analysis.data.citations")
 RESOURCE_PATH = resources.files("patent_analysis.data.citations_dummy")
 
 
-def get_subclass_lf(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pl.LazyFrame:
+def get_subclass_df(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pd.DataFrame:
     return (
-        pl.scan_csv(
-            file=path,
-            sep="\t",
-            dtypes={
-                "patent_id": pl.Utf8,
-                "section": pl.Utf8,
-                "ipc_class": pl.Utf8,
-                "subclass": pl.Utf8
-            }
-        )
-        .select(
-            ["patent_id", "section", "ipc_class", "subclass"]
-        )
-    )
-
-
-def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output.tsv") -> pl.LazyFrame:
-    return (
-        pl.scan_csv(
+        pd.read_csv(
             path,
             sep="\t",
-            dtypes={
-                "cited_patent": pl.Utf8,
-                "cited_patent_issue_date": pl.Date,
-                "citations_3_years": pl.UInt32,
-                "citations_5_years": pl.UInt32,
-            }
+            dtype={
+                "patent_id": str,
+                "section": str,
+                "ipc_class": str,
+                "subclass": str
+            },
+            usecols=["patent_id", "section", "ipc_class", "subclass"]
         )
     )
 
 
-def get_output_lf(
+def get_citations_count_df(path=f"{CITATIONS_COUNT_PATH}/output.tsv") -> pd.DataFrame:
+    return (
+        pd.read_csv(
+            path,
+            sep="\t",
+            dtype={
+                "cited_patent": str,
+                "citations_3_years": "UInt32",
+                "citations_5_years": "UInt32",
+            },
+            parse_dates=True
+        )
+    )
+
+
+def get_output_df(
         citations_count_path=f"{CITATIONS_COUNT_PATH}/output.tsv",
         subclass_path=f"{RESOURCE_PATH}/ipcr.tsv"
-) -> pl.LazyFrame:
+) -> pd.DataFrame:
     return (
-        get_citations_count_lf(path=citations_count_path)
-        .join(get_subclass_lf(path=subclass_path), left_on="cited_patent", right_on="patent_id")
+        get_citations_count_df(path=citations_count_path)
+        .set_index("cited_patent")
+        .join(get_subclass_df(path=subclass_path).set_index("patent_id"))
         .groupby(
             [
                 "cited_patent_issue_date",
@@ -54,9 +55,8 @@ def get_output_lf(
                 "subclass"
             ]
         )
-        .agg(
-            pl.col("cited_patent")
-        )
+        ["citations_3_years"]
+        .rank(pct=True)
     )
 
 
