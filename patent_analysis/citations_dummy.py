@@ -40,6 +40,25 @@ def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output.tsv") -> pl.Lazy
     )
 
 
+def cohort_percentile(column_name: str):
+    groups = [
+        "cited_patent_issue_date",
+        "section",
+        "ipc_class",
+        "subclass"
+    ]
+
+    ranks = (
+        pl.col(column_name)
+        .rank()
+        .over(groups)
+    )
+
+    return (
+        ranks / pl.col(column_name).count().over(groups)
+    ).alias(f"{column_name}_percentile")
+
+
 def get_output_lf(
         citations_count_path=f"{CITATIONS_COUNT_PATH}/output.tsv",
         subclass_path=f"{RESOURCE_PATH}/ipcr.tsv"
@@ -48,23 +67,18 @@ def get_output_lf(
         get_citations_count_lf(path=citations_count_path)
         .join(get_subclass_lf(path=subclass_path), left_on="cited_patent", right_on="patent_id")
         .with_column(
-            pl.col("citations_3_years")
-            .rank()
-            .over(
-                [
-                    "cited_patent_issue_date",
-                    "section",
-                    "ipc_class",
-                    "subclass"
-                ]
-            )
-            .alias("rank")
+            cohort_percentile("citations_3_years")
+        )
+        .groupby("cited_patent")
+        .agg(
+            pl.col("citations_3_years_percentile").max()
         )
     )
 
 
 def main():
-    pass
+    df = get_output_lf().collect()
+    print(df)
 
 
 if __name__ == '__main__':
