@@ -19,9 +19,9 @@ def get_subclass_lf(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pl.LazyFrame:
             }
         )
         .select(
-            ["patent_id", "section", "ipc_class", "subclass"]
+            ["uuid", "patent_id", "section", "ipc_class", "subclass"]
         )
-        .unique()
+        .unique(subset=["patent_id", "section", "ipc_class", "subclass"])
     )
 
 
@@ -63,7 +63,7 @@ def get_output_lf(
         citations_count_path=f"{CITATIONS_COUNT_PATH}/output.tsv",
         subclass_path=f"{RESOURCE_PATH}/ipcr.tsv"
 ) -> pl.LazyFrame:
-    return (
+    lf = (
         get_citations_count_lf(path=citations_count_path)
         .join(get_subclass_lf(path=subclass_path), left_on="cited_patent", right_on="patent_id")
         .with_column(
@@ -71,15 +71,21 @@ def get_output_lf(
             .dt.year()
             .alias("cited_patent_issue_year")
         )
-
-        .with_column(
+    )
+    return (
+        lf.with_column(
             cohort_percentile("citations_3_years")
         )
-        .with_column(
-            pl.when(pl.col("citations_5_years").is_null())
-            .then(pl.lit(None))
-            .otherwise(cohort_percentile("citations_5_years"))
-            .alias("citations_5_years_percentile")
+        .join(
+            lf.filter(pl.col("citations_5_years").is_not_null())
+            .select(
+                [
+                    pl.col("uuid"),
+                    cohort_percentile("citations_5_years")
+                ]
+            ),
+            on="uuid",
+            how="outer"
         )
 
         .groupby("cited_patent")
