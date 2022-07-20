@@ -59,6 +59,12 @@ def cohort_percentile(column_name: str):
     ).alias(f"{column_name}_percentile")
 
 
+def percentile_dummy(column: pl.Expr, percentile: float):
+    return (
+        column > percentile
+    ).cast(pl.UInt8)
+
+
 def get_output_lf(
         citations_count_path=f"{CITATIONS_COUNT_PATH}/output.tsv",
         subclass_path=f"{RESOURCE_PATH}/ipcr.tsv"
@@ -91,8 +97,8 @@ def get_output_lf(
         .groupby("cited_patent")
         .agg(
             [
-                pl.col("citations_3_years_percentile").max(),
-                pl.col("citations_5_years_percentile").max()
+                percentile_dummy(pl.col("citations_3_years_percentile").max(), 0.95),
+                percentile_dummy(pl.col("citations_5_years_percentile").max(), 0.95)
             ]
         )
     )
