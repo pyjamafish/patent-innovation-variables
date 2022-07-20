@@ -75,9 +75,19 @@ def get_output_lf(
         .with_column(
             cohort_percentile("citations_3_years")
         )
+        .with_column(
+            pl.when(pl.col("citations_5_years").is_null())
+            .then(pl.lit(None))
+            .otherwise(cohort_percentile("citations_5_years"))
+            .alias("citations_5_years_percentile")
+        )
+
         .groupby("cited_patent")
         .agg(
-            pl.col("citations_3_years_percentile").max()
+            [
+                pl.col("citations_3_years_percentile").max(),
+                pl.col("citations_5_years_percentile").max()
+            ]
         )
     )
 
