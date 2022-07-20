@@ -40,7 +40,7 @@ def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output.tsv") -> pl.Lazy
     )
 
 
-def cohort_percentile(column_name: str):
+def cohort_percentile(column_name: str) -> pl.Expr:
     groups = [
         "cited_patent_issue_year",
         "section",
@@ -55,14 +55,16 @@ def cohort_percentile(column_name: str):
     )
 
     return (
-        ranks / pl.col(column_name).count().over(groups)
-    ).alias(f"{column_name}_percentile")
+        (ranks / pl.col(column_name).count().over(groups))
+        .alias(f"{column_name}_percentile")
+    )
 
 
-def percentile_dummy(column: pl.Expr, percentile: float):
+def percentile_dummy(column: pl.Expr, percentile: float) -> pl.Expr:
     return (
-        column > percentile
-    ).cast(pl.UInt8)
+        (column > percentile)
+        .cast(pl.UInt8)
+    )
 
 
 def get_output_lf(
