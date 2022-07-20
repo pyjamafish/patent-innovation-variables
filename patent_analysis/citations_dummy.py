@@ -42,7 +42,7 @@ def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output.tsv") -> pl.Lazy
 
 def cohort_percentile(column_name: str):
     groups = [
-        "cited_patent_issue_date",
+        "cited_patent_issue_year",
         "section",
         "ipc_class",
         "subclass"
@@ -66,6 +66,12 @@ def get_output_lf(
     return (
         get_citations_count_lf(path=citations_count_path)
         .join(get_subclass_lf(path=subclass_path), left_on="cited_patent", right_on="patent_id")
+        .with_column(
+            pl.col("cited_patent_issue_date")
+            .dt.year()
+            .alias("cited_patent_issue_year")
+        )
+
         .with_column(
             cohort_percentile("citations_3_years")
         )
