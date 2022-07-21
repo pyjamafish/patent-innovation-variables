@@ -26,15 +26,15 @@ def uspatentcitation_path():
 
 
 @pytest.fixture()
-def expected_output_path():
-    return get_filename_in_citations_package("output.tsv")
+def expected_output_sample_path():
+    return get_filename_in_citations_package("output_sample.tsv")
 
 
 def test_citation(
     patent_path,
     sample_path,
     uspatentcitation_path,
-    expected_output_path,
+    expected_output_sample_path,
 ) -> None:
     lf = (
         citations.get_output_universe_lf(
@@ -47,7 +47,7 @@ def test_citation(
 
     df_expected = (
         pl.read_csv(
-            expected_output_path,
+            expected_output_sample_path,
             sep="\t",
             dtypes={
                 "cited_patent_issue_date": pl.Date,
