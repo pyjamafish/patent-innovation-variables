@@ -1,11 +1,11 @@
+from importlib import resources
+
 import polars as pl
 
-from importlib import resources
+from patent_analysis import citations
 
 CITATIONS_COUNT_PATH = resources.files("patent_analysis.data.citations")
 RESOURCE_PATH = resources.files("patent_analysis.data.citations_dummy")
-
-from patent_analysis import citations
 
 
 def get_subclass_lf(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pl.LazyFrame:
@@ -66,6 +66,7 @@ def percentile_dummy(column: pl.Expr, percentile: float) -> pl.Expr:
     return (
         (column > percentile)
         .cast(pl.UInt8)
+        .suffix(f"_{int(percentile * 100)}")
     )
 
 
@@ -102,7 +103,9 @@ def get_output_lf(
         .agg(
             [
                 percentile_dummy(pl.col("citations_3_years_percentile").max(), 0.95),
-                percentile_dummy(pl.col("citations_5_years_percentile").max(), 0.95)
+                percentile_dummy(pl.col("citations_5_years_percentile").max(), 0.95),
+                percentile_dummy(pl.col("citations_3_years_percentile").max(), 0.99),
+                percentile_dummy(pl.col("citations_5_years_percentile").max(), 0.99),
             ]
         )
         .filter(
