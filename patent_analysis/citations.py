@@ -49,7 +49,7 @@ def get_citations_count(years: int) -> pl.Expr:
     ).sum().alias(f"citations_{years}_years")
 
 
-def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
+def get_output_universe_lf(patent_path, citation_path) -> pl.LazyFrame:
     return (
         get_citation_lf(citation_path)
         .rename(
@@ -58,7 +58,7 @@ def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
                 "citation_id": "cited_patent",
             }
         )
-        .join(get_sample_lf(sample_path), left_on="cited_patent", right_on="id")
+        .join(get_patent_lf(patent_path), left_on="cited_patent", right_on="id")
         .rename({"date": "cited_patent_issue_date"})
         .filter(
             pl.col("cited_patent_issue_date") <= SAMPLE_LATEST_DATE
@@ -83,12 +83,21 @@ def get_output_lf(patent_path, sample_path, citation_path) -> pl.LazyFrame:
 
 
 def main():
-    lf = get_output_lf(
+    output_universe = get_output_universe_lf(
         patent_path=f"{RESOURCE_PATH}/patent.tsv",
-        sample_path=f"{RESOURCE_PATH}/sample.csv",
         citation_path=f"{RESOURCE_PATH}/uspatentcitation.tsv"
+    ).collect()
+
+    output_universe.write_csv(file=f"{RESOURCE_PATH}/output_universe.tsv", sep="\t")
+
+    output_sample = (
+        output_universe.filter(
+            pl.col("cited_patent").is_in(
+                get_sample_lf(f"{RESOURCE_PATH}/sample.csv").select("id").collect().get_column("id")
+            )
+        )
     )
-    lf.collect().write_csv(file=f"{RESOURCE_PATH}/output.tsv", sep="\t")
+    output_sample.write_csv(file=f"{RESOURCE_PATH}/output_sample.tsv", sep="\t")
 
 
 if __name__ == '__main__':
