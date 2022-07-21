@@ -9,10 +9,12 @@ def test_citation(
     citations_expected_output_path,
     tmp_path
 ) -> None:
-    lf = citations.get_output_lf(
-        patent_path=citations_patent_path,
-        sample_path=citations_sample_path,
-        citation_path=citations_uspatentcitation_path
+    lf = citations.get_sample_output_from_universe_output(
+        citations.get_output_universe_lf(
+            patent_path=citations_patent_path,
+            citation_path=citations_uspatentcitation_path
+        ),
+        sample_path=citations_sample_path
     )
     df_actual = lf.collect().sort(by="cited_patent")
 
