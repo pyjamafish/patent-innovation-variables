@@ -82,21 +82,25 @@ def get_output_universe_lf(patent_path, citation_path) -> pl.LazyFrame:
     )
 
 
+def get_sample_output_from_universe_output(universe_output: pl.LazyFrame, sample_path: str) -> pl.LazyFrame:
+    return universe_output.filter(
+        pl.col("cited_patent").is_in(
+            get_sample_lf(sample_path).select("id").collect().get_column("id")
+        )
+    )
+
+
 def main():
     output_universe = get_output_universe_lf(
         patent_path=f"{RESOURCE_PATH}/patent.tsv",
         citation_path=f"{RESOURCE_PATH}/uspatentcitation.tsv"
     ).collect()
-
     output_universe.write_csv(file=f"{RESOURCE_PATH}/output_universe.tsv", sep="\t")
 
-    output_sample = (
-        output_universe.filter(
-            pl.col("cited_patent").is_in(
-                get_sample_lf(f"{RESOURCE_PATH}/sample.csv").select("id").collect().get_column("id")
-            )
-        )
-    )
+    output_sample = get_sample_output_from_universe_output(
+        output_universe.lazy(),
+        f"{RESOURCE_PATH}/sample.csv"
+    ).collect()
     output_sample.write_csv(file=f"{RESOURCE_PATH}/output_sample.tsv", sep="\t")
 
 
