@@ -35,7 +35,6 @@ def test_citation(
     sample_path,
     uspatentcitation_path,
     expected_output_path,
-    tmp_path
 ) -> None:
     lf = (
         citations.get_output_universe_lf(
