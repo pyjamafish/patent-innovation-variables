@@ -5,6 +5,8 @@ from importlib import resources
 CITATIONS_COUNT_PATH = resources.files("patent_analysis.data.citations")
 RESOURCE_PATH = resources.files("patent_analysis.data.citations_dummy")
 
+from patent_analysis import citations
+
 
 def get_subclass_lf(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pl.LazyFrame:
     return (
@@ -25,7 +27,7 @@ def get_subclass_lf(path=f"{RESOURCE_PATH}/ipcr.tsv") -> pl.LazyFrame:
     )
 
 
-def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output.tsv") -> pl.LazyFrame:
+def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output_universe.tsv") -> pl.LazyFrame:
     return (
         pl.scan_csv(
             path,
@@ -68,7 +70,7 @@ def percentile_dummy(column: pl.Expr, percentile: float) -> pl.Expr:
 
 
 def get_output_lf(
-        citations_count_path=f"{CITATIONS_COUNT_PATH}/output.tsv",
+        citations_count_path=f"{CITATIONS_COUNT_PATH}/output_universe.tsv",
         subclass_path=f"{RESOURCE_PATH}/ipcr.tsv"
 ) -> pl.LazyFrame:
     lf = (
@@ -103,12 +105,15 @@ def get_output_lf(
                 percentile_dummy(pl.col("citations_5_years_percentile").max(), 0.95)
             ]
         )
+        .filter(
+            citations.in_sample()
+        )
     )
 
 
 def main():
     df = get_output_lf().collect()
-    print(df)
+    df.write_csv(file=f"{RESOURCE_PATH}/output.tsv", sep="\t")
 
 
 if __name__ == '__main__':
