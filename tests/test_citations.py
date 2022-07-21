@@ -7,7 +7,7 @@ from patent_analysis import citations
 
 
 def get_filename_in_citations_package(basename: str) -> str:
-    return f"{resources.files('tests.fixtures.citations')}/{basename}"
+    return f"{resources.files('tests.fixtures.citations.citations')}/{basename}"
 
 
 @pytest.fixture()
