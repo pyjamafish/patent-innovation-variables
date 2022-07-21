@@ -11,44 +11,44 @@ def get_filename_in_citations_package(basename: str) -> str:
 
 
 @pytest.fixture()
-def citations_patent_path():
+def patent_path():
     return get_filename_in_citations_package("patent.tsv")
 
 
 @pytest.fixture()
-def citations_sample_path():
+def sample_path():
     return get_filename_in_citations_package("sample.csv")
 
 
 @pytest.fixture()
-def citations_uspatentcitation_path():
+def uspatentcitation_path():
     return get_filename_in_citations_package("uspatentcitation.tsv")
 
 
 @pytest.fixture()
-def citations_expected_output_path():
+def expected_output_path():
     return get_filename_in_citations_package("output.tsv")
 
 
 def test_citation(
-    citations_patent_path,
-    citations_sample_path,
-    citations_uspatentcitation_path,
-    citations_expected_output_path,
+    patent_path,
+    sample_path,
+    uspatentcitation_path,
+    expected_output_path,
     tmp_path
 ) -> None:
     lf = (
         citations.get_output_universe_lf(
-            patent_path=citations_patent_path,
-            citation_path=citations_uspatentcitation_path
+            patent_path=patent_path,
+            citation_path=uspatentcitation_path
         )
-        .filter(citations.in_sample(sample_path=citations_sample_path))
+        .filter(citations.in_sample(sample_path=sample_path))
     )
     df_actual = lf.collect().sort(by="cited_patent")
 
     df_expected = (
         pl.read_csv(
-            citations_expected_output_path,
+            expected_output_path,
             sep="\t",
             dtypes={
                 "cited_patent_issue_date": pl.Date,
