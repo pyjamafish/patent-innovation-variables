@@ -10,15 +10,25 @@ from scipy.stats import skewnorm
 
 from datetime import datetime
 
-SAMPLE_DATES = {
-    "A": datetime(1999, 3, 22),
-    "B": datetime(2000, 4, 7),
-    "C": datetime(2017, 11, 17),
-    "D": datetime(2016, 3, 29),
-    "E": datetime(2015, 10, 29)
+COHORT_YEARS = {
+    "A": 1999,
+    "B": 1999,
+    "C": 2017,
+    "D": 2017,
+    "E": 2000,
+    "F": 2000
 }
 
-GENERATED_PATENTS_PER_COHORT = 99
+SAMPLE = {
+    "A-60-60/B-94-94": datetime(1999, 3, 22),
+    "A-95-94/B-20-20": datetime(1999, 4, 7),
+    "C-99-null/D-95-null": datetime(2017, 11, 17),
+    "C-94-null/D-95-null": datetime(2017, 3, 29),
+    "E-32-32/F-99-99": datetime(2000, 10, 29),
+    "E-94-98/F-60-60": datetime(2000, 10, 25)
+}
+
+GENERATED_PATENTS_PER_COHORT = 98
 
 SEED = 521
 
@@ -44,7 +54,7 @@ def uniform_distribution():
 def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
     generator = np.random.default_rng(SEED)
 
-    year = SAMPLE_DATES[prefix].year
+    year = COHORT_YEARS[prefix]
     random_dates = datetime(year, 1, 1) + pd.to_timedelta(
         generator.integers(
             low=0,
@@ -75,6 +85,7 @@ def generate_output_universe_df() -> pl.DataFrame:
     c = generate_cohort_df("C", skewed_distribution(5))
     d = generate_cohort_df("D", skewed_distribution(-5))
     e = generate_cohort_df("E", skewed_distribution(0))
+    f = generate_cohort_df("F", uniform_distribution())
     # TODO
     return None
 
@@ -82,40 +93,56 @@ def generate_output_universe_df() -> pl.DataFrame:
 def generate_sample_df() -> pl.DataFrame:
     return pl.DataFrame(
         {
-            "patent_num": SAMPLE_DATES.keys(),
-            "issue_date": SAMPLE_DATES.values()
+            "patent_num": SAMPLE.keys(),
+            "issue_date": SAMPLE.values()
         }
     )
 
 
 def generate_ipcr_df() -> pl.DataFrame:
-    uuid = range(1, 5 * (GENERATED_PATENTS_PER_COHORT + 1) + 1)
     patent_id = [
         f"{prefix}{suffix}"
-        for prefix in SAMPLE_DATES.keys()
-        for suffix in ["", *range(1, GENERATED_PATENTS_PER_COHORT + 1)]
+        for prefix in COHORT_YEARS.keys()
+        for suffix in range(1, GENERATED_PATENTS_PER_COHORT + 1)
     ]
     section = [
         prefix
-        for prefix in SAMPLE_DATES.keys()
-        for _ in range(1 + GENERATED_PATENTS_PER_COHORT)
+        for prefix in COHORT_YEARS.keys()
+        for _ in range(GENERATED_PATENTS_PER_COHORT)
     ]
-    ipc_class = pl.lit(1)
-    subclass = section
 
-    return pl.DataFrame(
+    generated_df = pl.DataFrame(
         {
-            "uuid": uuid,
             "patent_id": patent_id,
             "section": section,
-            "ipc_class": ipc_class,
-            "subclass": subclass
         }
+    )
+
+    sample_df = pl.DataFrame(
+        {
+            "patent_id": [
+                patent_id
+                for patent_id in SAMPLE.keys()
+                for _ in range(2)
+            ],
+            "section": [
+                s
+                for patent_id in SAMPLE.keys()
+                for s in (patent_id[0], patent_id.partition("/")[2][0])
+            ]
+        }
+    )
+    return (
+        pl.concat([generated_df, sample_df])
+        .with_column(pl.lit(1).alias("ipc_class"))
+        .with_column(pl.col("section").alias("subclass"))
+        .with_row_count(name="uuid")
     )
 
 
 def main() -> None:
-    generate_output_universe_df()
+    df = generate_ipcr_df()
+    print(df)
 
 
 if __name__ == '__main__':
