@@ -9,6 +9,8 @@ import numpy as np
 from scipy.stats import skewnorm
 
 from datetime import datetime
+from dataclasses import dataclass
+from typing import Optional
 
 COHORT_YEARS = {
     "A": 1999,
@@ -19,18 +21,58 @@ COHORT_YEARS = {
     "F": 2000
 }
 
-SAMPLE = {
-    "A-60-60/B-94-94": datetime(1999, 3, 22),
-    "A-95-94/B-20-20": datetime(1999, 4, 7),
-    "C-99-null/D-95-null": datetime(2017, 11, 17),
-    "C-94-null/D-95-null": datetime(2017, 3, 29),
-    "E-32-32/F-99-99": datetime(2000, 10, 29),
-    "E-94-98/F-60-60": datetime(2000, 10, 25)
-}
-
 GENERATED_PATENTS_PER_COHORT = 98
 
 SEED = 521
+
+
+@dataclass
+class CitationPercentiles:
+    percentile_3_years: int
+    percentile_5_years: Optional[int]
+
+
+@dataclass
+class SamplePatent:
+    issue_date: datetime
+    citation_percentiles: dict[str, CitationPercentiles]
+
+    def __str__(self):
+        return "/".join(
+            [
+                f"{cohort}-{citation_percentile.percentile_3_years}-{citation_percentile.percentile_5_years}"
+                for cohort, citation_percentile in self.citation_percentiles.items()
+            ]
+        )
+
+
+SAMPLE = [
+    SamplePatent(
+        datetime(1999, 3, 22),
+        {"A": CitationPercentiles(60, 60), "B": CitationPercentiles(94, 94)}
+    ),
+    SamplePatent(
+        datetime(1999, 4, 7),
+        {"A": CitationPercentiles(95, 94), "B": CitationPercentiles(20, 20)}
+    ),
+    SamplePatent(
+        datetime(2017, 11, 17),
+        {"C": CitationPercentiles(99, None), "D": CitationPercentiles(95, None)}
+    ),
+    SamplePatent(
+        datetime(2017, 3, 29),
+        {"C": CitationPercentiles(94, None), "D": CitationPercentiles(95, None)}
+    ),
+    SamplePatent(
+        datetime(2000, 10, 29),
+        {"E": CitationPercentiles(32, 32), "F": CitationPercentiles(99, 99)}
+    ),
+    SamplePatent(
+        datetime(2000, 10, 25),
+        {"E": CitationPercentiles(94, 98), "F": CitationPercentiles(60, 60)}
+    )
+
+]
 
 
 def skewed_distribution(skewness):
@@ -86,15 +128,17 @@ def generate_output_universe_df() -> pl.DataFrame:
     d = generate_cohort_df("D", skewed_distribution(-5))
     e = generate_cohort_df("E", skewed_distribution(0))
     f = generate_cohort_df("F", uniform_distribution())
-    # TODO
-    return None
+    # TODO add samples to this!
+    return pl.concat(
+        [a, b, c, d, e, f]
+    )
 
 
 def generate_sample_df() -> pl.DataFrame:
     return pl.DataFrame(
         {
-            "patent_num": SAMPLE.keys(),
-            "issue_date": SAMPLE.values()
+            "patent_num": [str(sample_patent) for sample_patent in SAMPLE],
+            "issue_date": [sample_patent.issue_date for sample_patent in SAMPLE]
         }
     )
 
@@ -121,14 +165,14 @@ def generate_ipcr_df() -> pl.DataFrame:
     sample_df = pl.DataFrame(
         {
             "patent_id": [
-                patent_id
-                for patent_id in SAMPLE.keys()
-                for _ in range(2)
+                str(sample_patent)
+                for sample_patent in SAMPLE
+                for _ in range(len(sample_patent.citation_percentiles))
             ],
             "section": [
-                s
-                for patent_id in SAMPLE.keys()
-                for s in (patent_id[0], patent_id.partition("/")[2][0])
+                section
+                for sample_patent in SAMPLE
+                for section in sample_patent.citation_percentiles.keys()
             ]
         }
     )
