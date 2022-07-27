@@ -76,7 +76,7 @@ def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
             "citations_3_years": distribution,
             "citations_5_years": (distribution * 1.2).astype(int)
         }
-    )
+    ).with_column(pl.col("cited_patent_issue_date").cast(pl.Date))
 
 
 def generate_output_universe_df() -> pl.DataFrame:
