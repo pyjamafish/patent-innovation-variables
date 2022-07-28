@@ -121,16 +121,48 @@ def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
     ).with_column(pl.col("cited_patent_issue_date").cast(pl.Date))
 
 
+def get_sample_citations_3_years(generated_cohort_dfs) -> pl.Series:
+    pass
+
+
+def get_sample_citations_5_years(generated_cohort_dfs) -> pl.Series:
+    pass
+
+
+def get_output_sample_df(generated_cohort_dfs: dict[str, pl.DataFrame]):
+    df = pl.DataFrame(
+        {
+            "cited_patent": [str(sample_patent) for sample_patent in SAMPLE],
+            "cited_patent_issue_date": [sample_patent.issue_date for sample_patent in SAMPLE],
+        }
+    )
+
+    return (
+        df.with_column(
+            get_sample_citations_3_years(generated_cohort_dfs)
+        )
+        .with_column(
+            get_sample_citations_5_years(generated_cohort_dfs)
+        )
+    )
+
+
 def generate_output_universe_df() -> pl.DataFrame:
-    a = generate_cohort_df("A", skewed_distribution(-10))
-    b = generate_cohort_df("B", uniform_distribution())
-    c = generate_cohort_df("C", skewed_distribution(5))
-    d = generate_cohort_df("D", skewed_distribution(-5))
-    e = generate_cohort_df("E", skewed_distribution(0))
-    f = generate_cohort_df("F", uniform_distribution())
-    # TODO add samples to this!
+    generated_cohort_dfs = {
+        "A": generate_cohort_df("A", skewed_distribution(-10)),
+        "B": generate_cohort_df("B", uniform_distribution()),
+        "C": generate_cohort_df("C", skewed_distribution(5)),
+        "D": generate_cohort_df("D", skewed_distribution(-5)),
+        "E": generate_cohort_df("E", skewed_distribution(0)),
+        "F": generate_cohort_df("F", uniform_distribution())
+    }
+
+    sample_df = get_output_sample_df(generated_cohort_dfs)
+
     return pl.concat(
-        [a, b, c, d, e, f]
+        [
+            generated_cohort_dfs, sample_df
+        ]
     )
 
 
