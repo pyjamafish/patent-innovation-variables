@@ -27,51 +27,46 @@ SEED = 521
 
 
 @dataclass
-class CitationPercentiles:
-    percentile_3_years: int
-    percentile_5_years: Optional[int]
-
-
-@dataclass
 class SamplePatent:
     issue_date: datetime
-    citation_percentiles: dict[str, CitationPercentiles]
+    citation_counts: tuple[int, Optional[int]]
+    subclasses: list[str]
 
     def __str__(self):
-        return "/".join(
-            [
-                f"{cohort}-{citation_percentile.percentile_3_years}-{citation_percentile.percentile_5_years}"
-                for cohort, citation_percentile in self.citation_percentiles.items()
-            ]
-        )
+        return f"{''.join(self.subclasses)}/{self.citation_counts[0]}-{self.citation_counts[1]}"
 
 
 SAMPLE = [
     SamplePatent(
         datetime(1999, 3, 22),
-        {"A": CitationPercentiles(60, 60), "B": CitationPercentiles(94, 94)}
+        (0, 0),
+        ["A", "B"]
     ),
     SamplePatent(
         datetime(1999, 4, 7),
-        {"A": CitationPercentiles(95, 94), "B": CitationPercentiles(20, 20)}
+        (0, 0),
+        ["A, B"]
     ),
     SamplePatent(
         datetime(2017, 11, 17),
-        {"C": CitationPercentiles(99, None), "D": CitationPercentiles(95, None)}
+        (0, 0),
+        ["C", "D"]
     ),
     SamplePatent(
         datetime(2017, 3, 29),
-        {"C": CitationPercentiles(94, None), "D": CitationPercentiles(95, None)}
+        (0, 0),
+        ["C", "D"]
     ),
     SamplePatent(
         datetime(2000, 10, 29),
-        {"E": CitationPercentiles(32, 32), "F": CitationPercentiles(99, 99)}
+        (0, 0),
+        ["E", "F"]
     ),
     SamplePatent(
         datetime(2000, 10, 25),
-        {"E": CitationPercentiles(94, 98), "F": CitationPercentiles(60, 60)}
+        (0, 0),
+        ["E", "F"]
     )
-
 ]
 
 
@@ -121,47 +116,28 @@ def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
     ).with_column(pl.col("cited_patent_issue_date").cast(pl.Date))
 
 
-def get_sample_citations_3_years(generated_cohort_dfs) -> pl.Series:
-    pass
+def generate_output_universe_df() -> pl.DataFrame:
+    generated_cohort_dfs = [
+        generate_cohort_df("A", skewed_distribution(-10)),
+        generate_cohort_df("B", uniform_distribution()),
+        generate_cohort_df("C", skewed_distribution(5)),
+        generate_cohort_df("D", skewed_distribution(-5)),
+        generate_cohort_df("E", skewed_distribution(0)),
+        generate_cohort_df("F", uniform_distribution())
+    ]
 
-
-def get_sample_citations_5_years(generated_cohort_dfs) -> pl.Series:
-    pass
-
-
-def get_output_sample_df(generated_cohort_dfs: dict[str, pl.DataFrame]):
-    df = pl.DataFrame(
+    sample_df = pl.DataFrame(
         {
             "cited_patent": [str(sample_patent) for sample_patent in SAMPLE],
             "cited_patent_issue_date": [sample_patent.issue_date for sample_patent in SAMPLE],
+            "citations_3_years": [sample_patent.citation_counts[0] for sample_patent in SAMPLE],
+            "citations_5_years": [sample_patent.citation_counts[1] for sample_patent in SAMPLE]
         }
     )
 
-    return (
-        df.with_column(
-            get_sample_citations_3_years(generated_cohort_dfs)
-        )
-        .with_column(
-            get_sample_citations_5_years(generated_cohort_dfs)
-        )
-    )
-
-
-def generate_output_universe_df() -> pl.DataFrame:
-    generated_cohort_dfs = {
-        "A": generate_cohort_df("A", skewed_distribution(-10)),
-        "B": generate_cohort_df("B", uniform_distribution()),
-        "C": generate_cohort_df("C", skewed_distribution(5)),
-        "D": generate_cohort_df("D", skewed_distribution(-5)),
-        "E": generate_cohort_df("E", skewed_distribution(0)),
-        "F": generate_cohort_df("F", uniform_distribution())
-    }
-
-    sample_df = get_output_sample_df(generated_cohort_dfs)
-
     return pl.concat(
         [
-            generated_cohort_dfs, sample_df
+            *generated_cohort_dfs, sample_df
         ]
     )
 
@@ -170,7 +146,9 @@ def generate_sample_df() -> pl.DataFrame:
     return pl.DataFrame(
         {
             "patent_num": [str(sample_patent) for sample_patent in SAMPLE],
-            "issue_date": [sample_patent.issue_date for sample_patent in SAMPLE]
+            "issue_date": [sample_patent.issue_date for sample_patent in SAMPLE],
+            "citations_3_years": [sample_patent.citation_counts[0] for sample_patent in SAMPLE],
+            "citations_5_years": [sample_patent.citation_counts[1] for sample_patent in SAMPLE]
         }
     )
 
@@ -199,12 +177,12 @@ def generate_ipcr_df() -> pl.DataFrame:
             "patent_id": [
                 str(sample_patent)
                 for sample_patent in SAMPLE
-                for _ in range(len(sample_patent.citation_percentiles))
+                for _ in range(len(sample_patent.subclasses))
             ],
             "section": [
                 section
                 for sample_patent in SAMPLE
-                for section in sample_patent.citation_percentiles.keys()
+                for section in sample_patent.subclasses
             ]
         }
     )
