@@ -1,7 +1,7 @@
 cited_patent	citations_3_years_percentile_95	citations_5_years_percentile_95	citations_3_years_percentile_99	citations_5_years_percentile_99
-A	0	0	0	0
-B	1	0	0	0
-C	1		1
-D	1		0
-E	1	1	1	1
-F 0	1	0	0
+AB/938-1124	0	0	0	0
+AB/942-942	1	0	0	0
+CD/1001-None	1		1
+CD/790-None	1		0
+EF/1001-1201	1	1	1	1
+EF/420-1064	0	1	0	0
