@@ -39,32 +39,32 @@ class SamplePatent:
 SAMPLE = [
     SamplePatent(
         datetime(1999, 3, 22),
-        (0, 0),
+        (938, 1124),
         ["A", "B"]
     ),
     SamplePatent(
         datetime(1999, 4, 7),
-        (0, 0),
+        (942, 942),
         ["A, B"]
     ),
     SamplePatent(
         datetime(2017, 11, 17),
-        (0, 0),
+        (1001, None),
         ["C", "D"]
     ),
     SamplePatent(
         datetime(2017, 3, 29),
-        (0, 0),
+        (790, None),
         ["C", "D"]
     ),
     SamplePatent(
         datetime(2000, 10, 29),
-        (0, 0),
+        (1001, 1201),
         ["E", "F"]
     ),
     SamplePatent(
         datetime(2000, 10, 25),
-        (0, 0),
+        (420, 1064),
         ["E", "F"]
     )
 ]
@@ -85,7 +85,7 @@ def uniform_distribution():
         low=0,
         high=1000,
         size=GENERATED_PATENTS_PER_COHORT
-    )
+    ).astype(int)
 
 
 def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
@@ -126,14 +126,21 @@ def generate_output_universe_df() -> pl.DataFrame:
         generate_cohort_df("F", uniform_distribution())
     ]
 
-    sample_df = pl.DataFrame(
-        {
-            "cited_patent": [str(sample_patent) for sample_patent in SAMPLE],
-            "cited_patent_issue_date": [sample_patent.issue_date for sample_patent in SAMPLE],
-            "citations_3_years": [sample_patent.citation_counts[0] for sample_patent in SAMPLE],
-            "citations_5_years": [sample_patent.citation_counts[1] for sample_patent in SAMPLE]
-        }
+    sample_df = (
+        pl.DataFrame(
+            {
+                "cited_patent": [str(sample_patent) for sample_patent in SAMPLE],
+                "cited_patent_issue_date": [sample_patent.issue_date for sample_patent in SAMPLE],
+                "citations_3_years": [sample_patent.citation_counts[0] for sample_patent in SAMPLE],
+                "citations_5_years": [sample_patent.citation_counts[1] for sample_patent in SAMPLE]
+            }
+        )
+        .with_column(pl.col("cited_patent_issue_date").cast(pl.Date))
+        .with_column(pl.col("citations_3_years").cast(pl.Int64))
+        .with_column(pl.col("citations_5_years").cast(pl.Int64))
     )
+
+    pass
 
     return pl.concat(
         [
@@ -195,7 +202,7 @@ def generate_ipcr_df() -> pl.DataFrame:
 
 
 def main() -> None:
-    df = generate_ipcr_df()
+    df = generate_output_universe_df()
     print(df)
 
 
