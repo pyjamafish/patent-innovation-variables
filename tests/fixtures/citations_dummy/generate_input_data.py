@@ -45,7 +45,7 @@ SAMPLE = [
     SamplePatent(
         datetime(1999, 4, 7),
         (942, 942),
-        ["A, B"]
+        ["A", "B"]
     ),
     SamplePatent(
         datetime(2017, 11, 17),
