@@ -73,7 +73,8 @@ def percentile_dummy(column: pl.Expr, percentile: float) -> pl.Expr:
 
 def get_output_lf(
         citations_count_path=f"{CITATIONS_COUNT_PATH}/output_universe.tsv",
-        subclass_path=f"{RESOURCE_PATH}/ipcr.tsv"
+        sample_path=f"{CITATIONS_COUNT_PATH}/sample.csv",
+        subclass_path=f"{RESOURCE_PATH}/ipcr.tsv",
 ) -> pl.LazyFrame:
     lf = (
         get_citations_count_lf(path=citations_count_path)
@@ -110,7 +111,7 @@ def get_output_lf(
             ]
         )
         .filter(
-            citations.in_sample()
+            citations.in_sample(sample_path)
         )
     )
 
