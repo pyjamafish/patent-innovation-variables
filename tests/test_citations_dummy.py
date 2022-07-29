@@ -49,7 +49,16 @@ def test_citations_dummy(
         pl.read_csv(
             expected_output_path,
             sep="\t",
+            dtypes={
+                "citations_3_years_percentile_95": pl.UInt8,
+                "citations_5_years_percentile_95": pl.UInt8,
+                "citations_3_years_percentile_99": pl.UInt8,
+                "citations_5_years_percentile_99": pl.UInt8
+            }
         )
         .sort(by="cited_patent")
     )
+
+    pass
+
     assert(df_actual.frame_equal(df_expected))
