@@ -153,9 +153,7 @@ def generate_sample_df() -> pl.DataFrame:
     return pl.DataFrame(
         {
             "patent_num": [str(sample_patent) for sample_patent in SAMPLE],
-            "issue_date": [sample_patent.issue_date for sample_patent in SAMPLE],
-            "citations_3_years": [sample_patent.citation_counts[0] for sample_patent in SAMPLE],
-            "citations_5_years": [sample_patent.citation_counts[1] for sample_patent in SAMPLE]
+            "issue_date": [sample_patent.issue_date.strftime("%m/%d/%Y") for sample_patent in SAMPLE],
         }
     )
 
@@ -202,8 +200,14 @@ def generate_ipcr_df() -> pl.DataFrame:
 
 
 def main() -> None:
-    df = generate_output_universe_df()
-    print(df)
+    output_universe_df = generate_output_universe_df()
+    output_universe_df.write_csv("citations/output_universe.tsv", sep="\t")
+
+    sample_df = generate_sample_df()
+    sample_df.write_csv("citations/sample.csv")
+
+    ipcr_df = generate_ipcr_df()
+    ipcr_df.write_csv("citations_dummy/ipcr.tsv", sep="\t")
 
 
 if __name__ == '__main__':
