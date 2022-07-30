@@ -11,6 +11,7 @@ from scipy.stats import skewnorm
 from datetime import datetime
 from dataclasses import dataclass
 from typing import Optional
+from patent_analysis import SAMPLE_5_YEAR_CUTOFF
 
 COHORT_YEARS = {
     "A": 1999,
@@ -106,7 +107,7 @@ def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
         for suffix in range(1, GENERATED_PATENTS_PER_COHORT + 1)
     ]
 
-    return pl.DataFrame(
+    df = pl.DataFrame(
         {
             "cited_patent": cited_patent,
             "cited_patent_issue_date": random_dates,
@@ -114,6 +115,15 @@ def generate_cohort_df(prefix: str, distribution) -> pl.DataFrame:
             "citations_5_years": (distribution * 1.2).astype(int)
         }
     ).with_column(pl.col("cited_patent_issue_date").cast(pl.Date))
+
+    if year > SAMPLE_5_YEAR_CUTOFF.year:
+        df = df.with_column(
+            pl.lit(None)
+            .alias("citations_5_years")
+            .cast(pl.Int64)
+        )
+
+    return df
 
 
 def generate_output_universe_df() -> pl.DataFrame:
