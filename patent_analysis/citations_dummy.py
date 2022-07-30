@@ -39,6 +39,11 @@ def get_citations_count_lf(path=f"{CITATIONS_COUNT_PATH}/output_universe.tsv") -
                 "citations_5_years": pl.UInt32,
             }
         )
+        .with_column(
+            pl.col("cited_patent_issue_date")
+            .dt.year()
+            .alias("cited_patent_issue_year")
+        )
     )
 
 
@@ -78,11 +83,6 @@ def get_output_lf(
     lf = (
         get_citations_count_lf(path=citations_count_path)
         .join(get_subclass_lf(path=subclass_path), left_on="cited_patent", right_on="patent_id")
-        .with_column(
-            pl.col("cited_patent_issue_date")
-            .dt.year()
-            .alias("cited_patent_issue_year")
-        )
     )
     return (
         lf.with_column(
