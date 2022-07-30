@@ -54,7 +54,6 @@ def cohort_percentile(column_name: str) -> pl.Expr:
         pl.col(column_name)
         .rank(method="min")
         .over(groups)
-        - pl.lit(1)
     )
 
     return (
