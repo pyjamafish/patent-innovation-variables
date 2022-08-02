@@ -3,7 +3,7 @@ from importlib import resources
 import polars as pl
 import pytest
 
-from patent_analysis import citations
+from patent_innovation_variables import citations
 
 
 def get_filename_in_citations_package(basename: str) -> str:

@@ -214,7 +214,7 @@ cython_debug/
 # Data
 *.db
 output.parquet
-patent_analysis/data/citations/*.csv
-patent_analysis/data/citations/*.tsv
-patent_analysis/data/citations_dummy/*.tsv
-patent_analysis/data/joined.tsv
+patent_innovation_variables/data/citations/*.csv
+patent_innovation_variables/data/citations/*.tsv
+patent_innovation_variables/data/citations_dummy/*.tsv
+patent_innovation_variables/data/joined.tsv

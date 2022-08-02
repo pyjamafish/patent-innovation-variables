@@ -11,7 +11,7 @@ from scipy.stats import skewnorm
 from datetime import datetime
 from dataclasses import dataclass
 from typing import Optional
-from patent_analysis import SAMPLE_5_YEAR_CUTOFF
+from patent_innovation_variables import SAMPLE_5_YEAR_CUTOFF
 
 COHORT_YEARS = {
     "A": 1999,

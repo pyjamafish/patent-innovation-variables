@@ -3,7 +3,7 @@ from importlib import resources
 import polars as pl
 import pytest
 
-from patent_analysis import citations_dummy
+from patent_innovation_variables import citations_dummy
 
 
 def get_fixture_filename(filename: str) -> str:
