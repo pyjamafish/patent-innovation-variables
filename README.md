@@ -1,5 +1,5 @@
-# Patent data analysis
-This repo contains code that counts patent citations.
+# Patent Innovation Variables
+This repo contains code that calculates variables that indicate patent innovation.
 
 ## Data sources
 The patent and citation data used by this repository is provided by PatentsView.
@@ -10,9 +10,13 @@ The sample used by this repository is taken from KPSS.
 ## `data` package layout
 * `citation` subpackage: contains files for counting citations.
 These files are too big to commit, so the expected files are listed below:
-  * `output.tsv`: the output data.
+  * `output_sample.tsv`: the output data for only the patents in `sample.csv`.
+  * `output_universe.tsv`: the full output data.
   * `patent.tsv`: the patent table from PatentsView,
   used to match patent ID with issue date.
   * `sample.csv`: the sample of patents to track citations for, from KPSS.
   * `uspatentcitation.tsv`: the citation table from PatentsView.
+* `citations_dummy` subpackage: contains files for determining citation dummy variables.
+  * `ipcr.tsv`: the table from PatentsView that matches patents with their section/class/subclass combination(s).
+  * `output.tsv`: the ouput data.
 
