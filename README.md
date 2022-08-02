@@ -1,4 +1,6 @@
 # Patent Innovation Variables
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6954668.svg)](https://doi.org/10.5281/zenodo.6954668)
+
 This repo contains code that calculates variables that indicate patent innovation.
 
 ## Data sources
